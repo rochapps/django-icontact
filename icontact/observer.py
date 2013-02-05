@@ -9,7 +9,7 @@ from django.db.models import signals
 from icontact.models import iContact
 from icontact.client import IcontactClient, IcontactException
 
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class iContactObserver(object):
     """

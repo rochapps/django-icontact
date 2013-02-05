@@ -7,7 +7,7 @@ import json
 
 from django.conf import settings
 
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 STATUS_CODES = {
     200: 'OK	Your request was processed successfully',
