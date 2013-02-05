@@ -1,2 +1,1 @@
-include README.rst LICENCE
-recursive-include geoportal *.py
+include README.rst LICENSE
