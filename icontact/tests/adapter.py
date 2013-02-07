@@ -4,16 +4,16 @@ from django.test import TestCase
 from django.conf import settings
 from django.db import IntegrityError
 
-from icontact.adapter import iContactData, iContactAdapter
+from icontact.adapter import IContactData, IContactAdapter
 
 
-class IcontactDataTests(TestCase):
+class IContactDataTests(TestCase):
     """
-        tests for IcontactData class
+        tests for IContactData class
     """
     
     def setUp(self):
-        self.data = iContactData(email='info@rochapps.com')
+        self.data = IContactData(email='info@rochapps.com')
             
     def test_get_data(self):
         data = self.data.get_data()
@@ -21,17 +21,17 @@ class IcontactDataTests(TestCase):
         self.assertEqual(data['contact']['email'],'info@rochapps.com')
         
     def test_default_status(self):
-        self.data = iContactData(email='info@rochapps.com')
+        self.data = IContactData(email='info@rochapps.com')
         self.assertEqual(self.data.status, 'normal')
         
 
-class IcontactAdapterTests(TestCase):
+class IContactAdapterTests(TestCase):
     """
         Tests for IcontactAdapter class
     """
     
     def setUp(self):
-        self.adapter = iContactAdapter()
+        self.adapter = IContactAdapter()
         
     def test_get_contact_data(self):
         instance = 1

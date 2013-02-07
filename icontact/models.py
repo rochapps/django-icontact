@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 
-class iContactManager(models.Manager):
+class IContactManager(models.Manager):
     """
     A custom manager for iContactContact model to get, create, update, and
     delete instances of the class.
@@ -46,7 +46,7 @@ class iContactManager(models.Manager):
                 object_id=obj.pk)
             contact.contact_id = contact_id
         except models.ObjectDoesNotExist:
-            contact = iContact(
+            contact = IContact(
                 content_type=ct, 
                 object_id=obj.pk,
                 contact_id=contact_id)
@@ -54,7 +54,7 @@ class iContactManager(models.Manager):
         return contact
     
 
-class iContact(models.Model):
+class IContact(models.Model):
     """
         iContactContact keep record of clientIds to be able to sync with the
         icontact API.
@@ -66,7 +66,7 @@ class iContact(models.Model):
     #icontact contactId 
     contact_id = models.CharField(max_length=50)
     #manager to get, update, and delete instances
-    objects = iContactManager()
+    objects = IContactManager()
     
     def __unicode__(self):
         return u"%s: %s" % (self.object, self.contact_id)

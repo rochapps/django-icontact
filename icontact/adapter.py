@@ -1,7 +1,7 @@
 """"
     Icontact Adapter
 """
-class iContactData(object):
+class IContactData(object):
     """
         Takes all the possible field for creating
         an icontact contact:
@@ -25,9 +25,9 @@ class iContactData(object):
     """
         
 
-    def __init__(self, email, prefix="", firstName="", lastName="", suffix="",
-            street="", street2="", city="", state="", postalCode="", phone="",
-            fax="", business="", status="normal", contactId=None):
+    def __init__(self, email, prefix="", first_name="", last_name="", suffix="",
+            street="", street2="", city="", state="", postal_code="", phone="",
+            fax="", business="", status="normal"):
         """
             Instantiate an instance of the class.
             
@@ -39,14 +39,14 @@ class iContactData(object):
         
         self.email = email
         self.prefix	= prefix #contact's salutation.	Miss
-        self.firstName = firstName
-        self.lastName = lastName
+        self.firstName = first_name
+        self.lastName = last_name
         self.suffix	= suffix #contact's name qualifications.	III
         self.street	= street 
         self.street2 = street2 
         self.city = city   
         self.state = state   #No longer than 10 characters.	NC
-        self.postalCode	= postalCode 
+        self.postalCode	= postal_code 
         self.phone = phone  #contact's phone number.	8668039462
         self.fax = fax	    #contact's fax number.	8668039462
         self.business = business #contact's business phone number.
@@ -61,7 +61,7 @@ class iContactData(object):
         return icontact_data
         
 
-class iContactAdapter(object):
+class IContactAdapter(object):
     """
         Adaptor classs.
     """

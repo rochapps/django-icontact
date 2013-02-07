@@ -26,10 +26,10 @@ STATUS_CODES = {
 }
 
 
-class IcontactException(Exception): pass
+class IContactException(Exception): pass
     
     
-class IcontactClient(object):
+class IContactClient(object):
     """
         Icontact Client to create, update, delete contacts, and subscribe
         them to a list.
@@ -84,12 +84,12 @@ class IcontactClient(object):
             You can pass extra headers by passing them into the ***kwargs
         """
         headers = {
-            'Accept':'application/json',
-            'Content-Type':'application/json',
-            'Api-Version':self.api_version,
-            'Api-AppId':self.api_key,
-            'Api-Username':self.username, 
-            'API-Password':self.password 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Api-Version': self.api_version,
+            'Api-AppId': self.api_key,
+            'Api-Username': self.username, 
+            'API-Password': self.password 
             }
         headers.update(kwargs)
         return headers
@@ -122,13 +122,13 @@ class IcontactClient(object):
             data = response.json()
             logging.debug(data)
             if 'warnings' in data:
-                raise IcontactException(' '.join(data['warnings']))
+                raise IContactException(' '.join(data['warnings']))
             if 'errors' in data:
-                raise IcontactException(' '.join(data['errors']))
+                raise IContactException(' '.join(data['errors']))
             return data
         message = STATUS_CODES.get(int(status_code), 404)
         logging.debug(message)
-        raise IcontactException(message)
+        raise IContactException(message)
     
     def create_contact(self, payload=None):
         """
@@ -146,33 +146,33 @@ class IcontactClient(object):
         contact = self.process_response(r)
         return contact
 
-    def get_contact(self, contactId):
+    def get_contact(self, contact_id):
         """
             Gets a contact with the provided contactId, if it doesn't find a
             match it raises an IcontactException
         """
         logging.debug('method: GET')
-        url = self.prepare_url(resource_url='contacts/{contactId}'.format(
-            contactId=contactId))
+        url = self.prepare_url(resource_url='contacts/{contact_id}'.format(
+            contact_id=contact_id))
         r = requests.get(url, headers=self._get_headers())
         json_response = self.process_response(r)
         return json_response
 
-    def update_contact(self, contactId, payload=None):
+    def update_contact(self, contact_id, payload=None):
         """
             Updates a contact with the provided contactId, if it doesn't find a
             match it raises an IcontactException
         """
         logging.debug('method: PUT')
-        url = self.prepare_url(resource_url='contacts/{contactId}'.format(
-            contactId=contactId))
+        url = self.prepare_url(resource_url='contacts/{contact_id}'.format(
+            contact_id=contact_id))
         payload = payload or {}
         r = requests.put(url, data=json.dumps(payload), 
             headers=self._get_headers())
         json_response = self.process_response(r)
         return json_response
         
-    def delete_contact(self, contactId):
+    def delete_contact(self, contact_id):
         """
             Deletes a contact with the provided contactId, if it doesn't find a
             match it raises an IcontactException.
@@ -180,8 +180,8 @@ class IcontactClient(object):
             Return an empty list if deleted succesfully.
         """
         logging.debug('method: DELETE')
-        url = self.prepare_url(resource_url='contacts/{contactId}'.format(
-            contactId=contactId))
+        url = self.prepare_url(resource_url='contacts/{contact_id}'.format(
+            contact_id=contact_id))
         r = requests.delete(url, headers=self._get_headers())
         json_response = self.process_response(r)
         return json_response
@@ -197,7 +197,7 @@ class IcontactClient(object):
         json_response = self.process_response(r)
         return json_response
         
-    def subscribe(self, contactId, listId=settings.ICONTACT_DEFAULT_LIST):
+    def subscribe(self, contact_id, list_id=settings.ICONTACT_DEFAULT_LIST):
         """
             Subscribe contact that matches the provided contactId to the
             default list.
@@ -209,8 +209,8 @@ class IcontactClient(object):
         """
         logging.debug('method: POST')
         url = self.prepare_url(resource_url='subscriptions/')
-        payload = {'subscription':{'contactId':contactId, 'listId':listId,
-            'status':'normal'}}
+        payload = {'subscription':{'contactId': contact_id, 'listId': list_id,
+            'status': 'normal'}}
         r = requests.post(url, data=json.dumps(payload), 
             headers=self._get_headers())
         json_response = self.process_response(r)

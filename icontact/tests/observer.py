@@ -10,19 +10,19 @@ from django.core.management import call_command
 from django.db.models import loading
 from django.contrib.contenttypes.models import ContentType
 
-from icontact.models import iContact
+from icontact.models import IContact
 from icontact.tests.models import MyContact
-from icontact.adapter import iContactAdapter, iContactData
-from icontact.observer import iContactObserver
-from icontact.client import IcontactClient, IcontactException
+from icontact.adapter import IContactAdapter, IContactData
+from icontact.observer import IContactObserver
+from icontact.client import IContactClient, IContactException
     
 
-class MyContactAdapter(iContactAdapter):
+class MyContactAdapter(IContactAdapter):
 
     def get_contact_data(self, instance):
-        return iContactData(email=instance.email, firstName=instance.firstName)
+        return IContactData(email=instance.email, first_name=instance.first_name)
 
-class iContactObserverTests(TestCase):
+class IContactObserverTests(TestCase):
     """
         iContact Custom Manager Tests
     """
@@ -30,46 +30,43 @@ class iContactObserverTests(TestCase):
         settings.INSTALLED_APPS += ('icontact.tests',)
         loading.cache.loaded = False
         call_command('syncdb', verbosity=0)
-        self.observer = iContactObserver()
+        self.observer = IContactObserver()
         self.observer.observe(MyContact, MyContactAdapter())
         
     def tearDown(self):
-        iContact.objects.all().delete()
+        IContact.objects.all().delete()
         
     def test_client(self):
-        self.assertIsInstance(self.observer.client(), IcontactClient)
+        self.assertIsInstance(self.observer.client(), IContactClient)
         
     def test_get_contact(self):
-        contact = MyContact(email="victor5@rochapps.com")
+        contact = MyContact(email="victor35@rochapps.com")
         contact.save()
         contact = self.observer.get_contact(contact)
         self.assertTrue(contact)
         
     def test_create(self):
-        contact = MyContact(email="victor26@rochapps.com")
+        contact = MyContact(email="victor36@rochapps.com")
         contact.save()
-        local_icontacts = iContact.objects.all()
+        local_icontacts = IContact.objects.all()
         self.assertTrue(local_icontacts)
         
     def test_update(self):
-        contact = MyContact(email="victor19@rochapps.com")
+        contact = MyContact(email="victor37@rochapps.com")
         contact.save()
-        contact.firstName = 'victor'
+        contact.first_name = 'victor'
         contact.save() #should call the update method on the observer model
         contact = self.observer.get_contact(contact)
-        contact_firstName = contact['contact']['firstName']
-        print contact_firstName
-        self.assertEqual('victor', contact_firstName)
+        contact_first_name = contact['contact']['firstName']
+        self.assertEqual('victor', contact_first_name)
                 
     def test_delete(self):
-        contact = MyContact(email="victor21@rochapps.com")
+        contact = MyContact(email="victor38@rochapps.com")
         contact.save()
         time.sleep(10)
         icontact = self.observer.get_contact(contact)
-        contactId = icontact['contact']['contactId']
+        contact_id = icontact['contact']['contactId']
         contact.delete()
         client = self.observer.client()
-        contact = client.get_contact(contactId)
-        print 'deleting contact'
-        print contact
-        self.assertRaises(IcontactException, client.get_contact, contactId)
+        contact = client.get_contact(contact_id)
+        self.assertEqual('deleted', contact['contact']['status'])

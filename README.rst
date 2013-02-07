@@ -24,8 +24,8 @@ The code in this example is sufficient to bind a model to iContact's API::
 
     from django.conf import settings
 
-    from icontact.adapter import iContactAdapter, iContactData
-    from icontact.observer import iContactObserver
+    from icontact.adapter import IContactAdapter, IContactData
+    from icontact.observer import IContactObserver
 
     from models import Contact
 
@@ -42,6 +42,8 @@ The code in this example is sufficient to bind a model to iContact's API::
                 email=instance.email,
                 etc,
             )
+    observer = IContactObserver()
+    observer.observe(Contact, ContactsAdapter())
 
 
 www.rochapps.com

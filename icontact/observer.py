@@ -6,12 +6,12 @@ import logging
 
 from django.db.models import signals
 
-from icontact.models import iContact
-from icontact.client import IcontactClient, IcontactException
+from icontact.models import IContact
+from icontact.client import IContactClient, IContactException
 
 logger = logging.getLogger(__name__)
 
-class iContactObserver(object):
+class IContactObserver(object):
     """
         Class that utilizes icontact client to sync model with icontact service
     """
@@ -55,18 +55,18 @@ class iContactObserver(object):
         Instantiate the client class to make authenticated calls to icontact.
         """
         if self._client is None:
-            self._client = IcontactClient()
+            self._client = IContactClient()
         return self._client
         
     def get_contact(self, instance):
         """
             gets a contact from icontact service
         """
-        contact_id = iContact.objects.get_contact_id(instance)
-        logging.debug("contact id: %s"%contact_id)
+        contact_id = IContact.objects.get_contact_id(instance)
+        logging.debug("contact id: {id}".format(id=contact_id))
         try:
             contact = self._client.get_contact(contact_id)
-        except IcontactException:
+        except IContactException:
             return None
         logging.debug('contact retrived')
         logging.debug(contact)
@@ -78,18 +78,18 @@ class iContactObserver(object):
             iContact instance
         """
         adapter = self.adapters[sender]
-        logging.debug('Adapter: %s'%adapter)
+        logging.debug('Adapter: {adapter}'.format(adapter=adapter))
         client = self.client()
         contact = adapter.get_contact_data(instance) #IcontactData instance
         data = contact.get_data()
         logging.debug("contact's data: %s"%data)
         try:
             icontact = client.create_contact(payload=data)
-            contactId = icontact['contacts'][0]['contactId']
-            subscription = client.subscribe(contactId)
-        except IcontactException:
-            return
-        iContact.objects.set_contact_id(instance, contactId)   
+            contact_id = icontact['contacts'][0]['contactId']
+            subscription = client.subscribe(contact_id)
+        except IContactException:
+            return None
+        IContact.objects.set_contact_id(instance, contact_id)   
     
     def update(self, sender, instance):
         """
@@ -106,11 +106,11 @@ class iContactObserver(object):
         logging.debug(data['contact'])
         try: 
             icontact = self.get_contact(instance)
-            contactId = icontact['contact']['contactId']
-            client.update_contact(contactId=contactId, payload=data['contact'])
-        except IcontactException:
+            contact_id = icontact['contact']['contactId']
+            client.update_contact(contact_id=contact_id, payload=data['contact'])
+        except IContactException:
             return None
-        iContact.objects.set_contact_id(instance, contactId)
+        IContact.objects.set_contact_id(instance, contact_id)
     
     def delete(self, sender, instance):
         """
@@ -121,9 +121,9 @@ class iContactObserver(object):
         contact = adapter.get_contact_data(instance) #IcontactData instance
         icontact = self.get_contact(instance)
         if not icontact: return None
-        contactId = icontact['contact']['contactId']
+        contact_id = icontact['contact']['contactId']
         try:
-            client.delete_contact(contactId) #delete from icontact
-        except IcontactException:
+            client.delete_contact(contact_id) #delete from icontact
+        except IContactException:
             pass
-        iContact.objects.delete_contact_id(instance) #delete from database
+        IContact.objects.delete_contact_id(instance) #delete from database

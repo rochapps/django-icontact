@@ -10,18 +10,18 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from icontact.client import IcontactClient
-from icontact.client import IcontactException
+from icontact.client import IContactClient
+from icontact.client import IContactException
 
-class IcontactClientTests(TestCase):
+class IContactClientTests(TestCase):
     """
         Tests for the Icontact Client
     """
     
     def setUp(self):
-        self._client = IcontactClient()
+        self._client = IContactClient()
         self.data = {"email": "victor@rochapps.com"}
-        self.create_data = {'contact':{"email":"info@rochapps.com"}}
+        self.create_data = {'contact': {"email": "info@rochapps.com"}}
         
     def test_get_headers(self):
         headers = self._client._get_headers()
@@ -35,13 +35,14 @@ class IcontactClientTests(TestCase):
         
     def test_prepare_url(self):
         baseurl = settings.ICONTACT_URL
-        account_id = 123456
-        folder_id = 1234
+        account_id = settings.ICONTACT_ACCOUNT_ID
+        folder_id = settings.ICONTACT_FOLDER_ID
         resource_url = 'contacts/'
-        client = IcontactClient(folder_id=folder_id, account_id=account_id)
+        client = IContactClient(folder_id=folder_id, account_id=account_id)
         url = client.prepare_url(resource_url=resource_url)
         self.assertEqual(
-            'https://app.sandbox.icontact.com/icp/a/123456/c/1234/contacts/',
+            '{base}a/{account}/c/{folder}/contacts/'.format(
+                folder=folder_id, account=account_id, base=baseurl),
             url)
             
     def test_process_response(self):
@@ -53,11 +54,11 @@ class IcontactClientTests(TestCase):
         #accesing a resource that doent exists should rise an error
         url = self._client.prepare_url(resource_url='contacts/1/')
         r = requests.get(url, headers=self._client._get_headers())
-        self.assertRaises(IcontactException, self._client.process_response, r)
+        self.assertRaises(IContactException, self._client.process_response, r)
         #accesing crazy url should raise exception
         url = self._client.prepare_url(resource_url='contactus/1/')
         r = requests.get(url, headers=self._client._get_headers())
-        self.assertRaises(IcontactException, self._client.process_response, r)
+        self.assertRaises(IContactException, self._client.process_response, r)
         
     def test_create_contact(self):
         client = self._client
@@ -67,8 +68,8 @@ class IcontactClientTests(TestCase):
         self.assertTrue(contact['contactId'])
         #it would rise an exception to created a client without the required
         #email or with bad formatting
-        data = {'contact':{"email":""}}
-        self.assertRaises(IcontactException, client.create_contact,
+        data = {'contact': {"email": ""}}
+        self.assertRaises(IContactException, client.create_contact,
             payload=data)
         
     def test_get_contacts(self):
@@ -86,9 +87,9 @@ class IcontactClientTests(TestCase):
         client = self._client
         r = client.create_contact(payload=self.create_data)
         contact = r['contacts'][0]
-        contactId = contact['contactId']
+        contact_id = contact['contactId']
         self.assertEqual('info@rochapps.com', contact['email'])
-        r = client.update_contact(contactId=contactId, payload=self.data)
+        r = client.update_contact(contact_id=contact_id, payload=self.data)
         contact = r['contact']
         self.assertEqual(contact['email'], self.data['email'])
 
@@ -97,36 +98,36 @@ class IcontactClientTests(TestCase):
         #lets create a client to retrive it
         r = client.create_contact(payload=self.create_data)
         contact = r['contacts'][0]
-        contactId = contact['contactId']
+        contact_id = contact['contactId']
         self.assertEqual('info@rochapps.com', contact['email'])
         #retriving client
-        r = client.get_contact(contactId)
+        r = client.get_contact(contact_id)
         new_contact = r['contact']
         self.assertEqual('info@rochapps.com', contact['email'])
-        new_contactId = new_contact['contactId']
-        self.assertEqual(contactId, new_contactId)
+        new_contact_id = new_contact['contactId']
+        self.assertEqual(contact_id, new_contact_id)
         #retriving a client that doesn't exists should rise an exception
-        self.assertRaises(IcontactException, client.get_contact, 23)
+        self.assertRaises(IContactException, client.get_contact, 23)
         
     def test_delete_contact(self):
         client = self._client
         #create contact
         r = client.create_contact(payload=self.create_data)
         contact = r['contacts'][0]
-        contactId = contact['contactId']
+        contact_id = contact['contactId']
         #delete contact
-        r = client.delete_contact(contactId=contactId)
+        r = client.delete_contact(contact_id=contact_id)
         self.assertFalse(len(r))
         #deleting client that doesnt exists raises exception
-        self.assertRaises(IcontactException, client.delete_contact, contactId)        
+        self.assertRaises(IContactException, client.delete_contact, contact_id)        
 
     def test_subscription(self):
         client = self._client
         r = client.create_contact(payload=self.create_data)
         contact = r['contacts'][0]
-        contactId = contact['contactId']
-        subs = client.subscribe(contactId=contactId)
+        contact_id = contact['contactId']
+        subs = client.subscribe(contact_id=contact_id)
         num_subscribtions = len(subs)
         self.assertIn('subscriptions', subs)
         #subscribing again raises an exception
-        self.assertRaises(IcontactException, client.subscribe, contactId)
+        self.assertRaises(IContactException, client.subscribe, contact_id)

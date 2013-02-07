@@ -9,14 +9,14 @@ from django.core.management import call_command
 from django.db.models import loading
 from django.contrib.contenttypes.models import ContentType
 
-from icontact.models import iContact
+from icontact.models import IContact
 
 class MyContact(models.Model):
     email = models.EmailField()
-    firstName = models.CharField(max_length=20)
+    first_name = models.CharField(max_length=20)
     
 
-class iContactManagerTests(TestCase):
+class IContactManagerTests(TestCase):
     """
         iContact Custom Manager Tests
     """
@@ -30,44 +30,44 @@ class iContactManagerTests(TestCase):
 #        icontact = iContact(object=self.contact, contact_id=1)
 
     def tearDown(self):
-        iContact.objects.all().delete()
+        IContact.objects.all().delete()
         
     def test_delete_contact_id(self):
-        icontact = iContact.objects.set_contact_id(
+        icontact = IContact.objects.set_contact_id(
             obj=self.contact, 
             contact_id=1)
-        iContact.objects.delete_contact_id(self.contact)    
-        iContacts = iContact.objects.all()
-        self.assertEqual(iContacts.count(), 0)
+        IContact.objects.delete_contact_id(self.contact)    
+        IContacts = IContact.objects.all()
+        self.assertEqual(IContacts.count(), 0)
         #deleting an unexistant object should not raise any exception
-        iContact.objects.delete_contact_id(self.contact)    
-        iContacts = iContact.objects.all()
-        self.assertEqual(iContacts.count(), 0)
+        IContact.objects.delete_contact_id(self.contact)    
+        iContacts = IContact.objects.all()
+        self.assertEqual(IContacts.count(), 0)
         
     def test_delete_contact_id(self):
         contact_type = ContentType.objects.get_for_model(self.contact)
-        icontact = iContact.objects.set_contact_id(
+        icontact = IContact.objects.set_contact_id(
             obj=self.contact, 
             contact_id='101')
-        contact_id = iContact.objects.get_contact_id(self.contact)    
+        contact_id = IContact.objects.get_contact_id(self.contact)    
         self.assertEqual(contact_id, icontact.contact_id)
         
     def test_set_contact_id(self):
         #it creates a contact a new instance if none matches the query
-        icontact = iContact.objects.set_contact_id(
+        icontact = IContact.objects.set_contact_id(
             obj=self.contact, 
             contact_id=1)
-        iContacts = iContact.objects.all()
-        self.assertEqual(iContacts.count(), 1)
+        IContacts = IContact.objects.all()
+        self.assertEqual(IContacts.count(), 1)
         #if the object already exists it should just updated it
-        icontact = iContact.objects.set_contact_id(
+        icontact = IContact.objects.set_contact_id(
             obj=self.contact, 
             contact_id=2)
-        iContacts = iContact.objects.all()
-        self.assertEqual(iContacts.count(), 1)
+        icontacts = IContact.objects.all()
+        self.assertEqual(icontacts.count(), 1)
 
 
-class iContactModelTests(TestCase):
+class IContactModelTests(TestCase):
     """
         Tests for the iCotactContact model
     """
@@ -77,7 +77,7 @@ class iContactModelTests(TestCase):
         call_command('syncdb', verbosity=0)
         self.contact = MyContact(email="victor@rochapps.com")
         self.contact.save()
-        self.icontact = iContact.objects.set_contact_id(
+        self.icontact = IContact.objects.set_contact_id(
             obj=self.contact, 
             contact_id=1)
             
