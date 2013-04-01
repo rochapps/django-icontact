@@ -48,4 +48,4 @@ The code in this example is sufficient to bind a model to iContact's API::
 
 www.rochapps.com
 ================
-We built legal management software solutions for attorneys that want to move their practice to the cloud
+We build legal management software solutions for attorneys that want to move their practice to the cloud
